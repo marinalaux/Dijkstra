@@ -1,5 +1,12 @@
 package dijkstra;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * Leitor das distâncias
  * 
@@ -7,55 +14,51 @@ package dijkstra;
  */
 public class LeitorDistancias {
     
+    /** Nome do arquivo para leitura das distâncias */
+    private static final String NOMARQ = "/distancias.csv";
     /** Tabela de distâncias lidas */
     private int[][] tabelaDistancias;
+    /** Nome dos nodos lidos */
+    private String[] nodos;
     
     public int[][] lerDistancias() {
-        tabelaDistancias = new int[6][6];
         
-        tabelaDistancias[0][0] = 0;
-        tabelaDistancias[0][1] = 2;
-        tabelaDistancias[0][2] = 0;
-        tabelaDistancias[0][3] = 0;
-        tabelaDistancias[0][4] = 0;
-        tabelaDistancias[0][5] = 7;
+        int linha = 0;
         
-        tabelaDistancias[1][0] = 2;
-        tabelaDistancias[1][1] = 0;
-        tabelaDistancias[1][2] = 9;
-        tabelaDistancias[1][3] = 0;
-        tabelaDistancias[1][4] = 3;
-        tabelaDistancias[1][5] = 4;
+        InputStream in = LeitorDistancias.class.getResourceAsStream(NOMARQ);
+        InputStreamReader inputReader = new InputStreamReader(in);
+        BufferedReader reader = new BufferedReader(inputReader);
         
-        tabelaDistancias[2][0] = 0;
-        tabelaDistancias[2][1] = 9;
-        tabelaDistancias[2][2] = 0;
-        tabelaDistancias[2][3] = 5;
-        tabelaDistancias[2][4] = 4;
-        tabelaDistancias[2][5] = 3;
+        try {
+            nodos = reader.readLine().split(";");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
         
-        tabelaDistancias[3][0] = 0;
-        tabelaDistancias[3][1] = 0;
-        tabelaDistancias[3][2] = 5;
-        tabelaDistancias[3][3] = 0;
-        tabelaDistancias[3][4] = 3;
-        tabelaDistancias[3][5] = 0;
+        tabelaDistancias = new int[nodos.length][nodos.length];
         
-        tabelaDistancias[4][0] = 0;
-        tabelaDistancias[4][1] = 3;
-        tabelaDistancias[4][2] = 4;
-        tabelaDistancias[4][3] = 3;
-        tabelaDistancias[4][4] = 0;
-        tabelaDistancias[4][5] = 1;
-        
-        tabelaDistancias[5][0] = 7;
-        tabelaDistancias[5][1] = 4;
-        tabelaDistancias[5][2] = 3;
-        tabelaDistancias[5][3] = 0;
-        tabelaDistancias[5][4] = 1;
-        tabelaDistancias[5][5] = 0;
+        while(linha < nodos.length) {
+            try {
+                String[] colunas = reader.readLine().split(";");
+                for (int i = 0; i < colunas.length; i++) {
+                    tabelaDistancias[linha][i] = Integer.parseInt(colunas[i]);
+                }
+                linha += 1;
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
         
         return tabelaDistancias;
+    }
+    
+    /**
+     * Retorna o nome dos nodos
+     * 
+     * @return Nome dos nodos
+     */
+    public String[] getNodos() {
+        return nodos;
     }
     
 }

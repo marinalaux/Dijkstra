@@ -12,6 +12,8 @@ public class Principal {
         Dijkstra d = new Dijkstra();
         d.algoritmoDijkstra();
         
+//        JanelaPrincipal.run(args);
+
     }
 
 }

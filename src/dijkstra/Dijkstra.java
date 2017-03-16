@@ -11,37 +11,30 @@ public class Dijkstra {
 
     /** Matriz de distâncias de todos os pontos */
     private int[][] tabelaDistancias;
-    /** Tabela de distâncias de um ponto específico */
-    private int[] distancias;
     /** Lista de prioridades para busca do menor caminho */
     private ArrayList<Integer> listaPrioridades;
+    /** Nodo */
+    private Nodo[] nodo;
+    /** Leitor das distâncias */
+    private LeitorDistancias leitor;
+    /** Caminho utilizado da origem ao destino */
+    private ArrayList<String> caminho;
     
     /**
      * Executa o algoritmo Dijkstra
      */
     public void algoritmoDijkstra() {
-        
-        LeitorDistancias leitor = new LeitorDistancias();
+        leitor = new LeitorDistancias();
         tabelaDistancias = leitor.lerDistancias();
 
-        inicializaDistancias();
+        nodo = new Nodo[tabelaDistancias.length];
+        caminho = new ArrayList<>();
+        
         inicializaListaPrioridades();
         
         buscaCustoMinimo();
     }
-    
-    /**
-     * Inicializa distâncias de um ponto específico com maior valor possível
-     */
-    private void inicializaDistancias() {
-        distancias = new int[tabelaDistancias.length];
         
-        for (int i = 0; i < distancias.length; i++) {
-            distancias[i] = Integer.MAX_VALUE;
-        }
-
-    }
-    
     /**
      * Inicializa a lista de prioridades da busca
      */
@@ -59,13 +52,18 @@ public class Dijkstra {
      */
     private void buscaCustoMinimo() {
         
-        int nodoOrigem, nodoMenorDistancia;
+        int nodoOrigem, nodoInicial, nodoDestino, nodoMenorDistancia;
         Integer[] vizinhos;
         
         // teste
-        nodoOrigem = 0;
+        nodoInicial = 0;
+        nodoDestino = 3;
         
-        distancias[nodoOrigem] = 0;
+        nodoOrigem = nodoInicial;
+        
+        nodo[nodoOrigem] = new Nodo();
+        nodo[nodoOrigem].setDistancia(0);
+        nodo[nodoOrigem].setPrecedente(nodoOrigem);
         listaPrioridades.remove(nodoOrigem);
         
         while (!listaPrioridades.isEmpty()) {
@@ -73,8 +71,12 @@ public class Dijkstra {
             vizinhos = buscaVizinhos(nodoOrigem);
                         
             for (int v = 0; v < vizinhos.length; v++) {
-                if (distancias[vizinhos[v]] > calculaPeso(nodoOrigem, vizinhos[v])) {
-                    distancias[vizinhos[v]] = calculaPeso(nodoOrigem, vizinhos[v]);
+                if (nodo[vizinhos[v]] == null) {
+                    nodo[vizinhos[v]] = new Nodo();
+                }
+                if (nodo[vizinhos[v]].getDistancia() > calculaPeso(nodoOrigem, vizinhos[v])) {
+                    nodo[vizinhos[v]].setDistancia(calculaPeso(nodoOrigem, vizinhos[v]));
+                    nodo[vizinhos[v]].setPrecedente(nodoOrigem);
                 }
             }
             
@@ -86,10 +88,28 @@ public class Dijkstra {
             
         }
         
-        for (int i = 0; i < distancias.length; i++) {
-            System.out.println("dist[" + i + "] = " + distancias[i]);
+        for (int i = 0; i < nodo.length; i++) {
+            System.out.println(leitor.getNodos()[i] + " = " + nodo[i].getDistancia());
         }
         
+        System.out.println("Caminho");
+        int i = nodoDestino;
+        while (true) {
+            caminho.add(leitor.getNodos()[nodo[i].getPrecedente()]);
+            i = nodo[i].getPrecedente();
+            if (nodo[i].getPrecedente() == nodoInicial) {
+                break;
+            }
+        }
+        
+        ArrayList<String> invertido = new ArrayList<>();
+        invertido.add(leitor.getNodos()[nodoInicial]);
+        for (int j = caminho.size() - 1; j >= 0; j--) {
+            invertido.add(caminho.get(j));
+        }
+        invertido.add(leitor.getNodos()[nodoDestino]);
+        caminho = invertido;
+        System.out.println(caminho);
     }
     
     /**
@@ -119,7 +139,7 @@ public class Dijkstra {
      * @return Peso do caminho
      */
     private int calculaPeso(int nodoReferencia, int nodoVizinho) {
-        return distancias[nodoReferencia] + tabelaDistancias[nodoReferencia][nodoVizinho];
+        return nodo[nodoReferencia].getDistancia() + tabelaDistancias[nodoReferencia][nodoVizinho];
     }
     
     /**
@@ -133,13 +153,15 @@ public class Dijkstra {
         int nodoMenorDistancia = 0;
         
         for (int i = 0; i < listaPrioridades.size(); i++) {
-            if (distancias[listaPrioridades.get(i)] < menorDistancia) {
-                menorDistancia = distancias[listaPrioridades.get(i)];
-                nodoMenorDistancia = i;
+            if (nodo[listaPrioridades.get(i)] != null) {
+                if (nodo[listaPrioridades.get(i)].getDistancia() < menorDistancia) {
+                    menorDistancia = nodo[listaPrioridades.get(i)].getDistancia();
+                    nodoMenorDistancia = i;
+                }
             }
         }
         
         return nodoMenorDistancia;
     }
-    
+
 }
