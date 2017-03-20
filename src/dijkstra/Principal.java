@@ -9,10 +9,7 @@ public class Principal {
 
     public static void main(String[] args) {
         
-        Dijkstra d = new Dijkstra();
-        d.algoritmoDijkstra();
-        
-//        JanelaPrincipal.run(args);
+        JanelaPrincipal.run(args);
 
     }
 

@@ -9,55 +9,34 @@ import java.util.ArrayList;
  */
 public class Dijkstra {
 
-    /** Matriz de distâncias de todos os pontos */
-    private int[][] tabelaDistancias;
     /** Lista de prioridades para busca do menor caminho */
     private ArrayList<Integer> listaPrioridades;
     /** Nodo */
     private Nodo[] nodo;
-    /** Leitor das distâncias */
-    private LeitorDistancias leitor;
     /** Caminho utilizado da origem ao destino */
     private ArrayList<String> caminho;
-    
-    /**
-     * Executa o algoritmo Dijkstra
-     */
-    public void algoritmoDijkstra() {
-        leitor = new LeitorDistancias();
-        tabelaDistancias = leitor.lerDistancias();
-
-        nodo = new Nodo[tabelaDistancias.length];
-        caminho = new ArrayList<>();
-        
-        inicializaListaPrioridades();
-        
-        buscaCustoMinimo();
-    }
-        
-    /**
-     * Inicializa a lista de prioridades da busca
-     */
-    private void inicializaListaPrioridades() {
-        listaPrioridades = new ArrayList<>();
-        
-        for (int i = 0; i < tabelaDistancias.length; i++) {
-            listaPrioridades.add(i);
-        }
-        
-    }
+    /** Matriz de distâncias de todos os nodos */
+    private TabelaDistancias tabelaDistancias;
     
     /**
      * Busca caminho de custo mínimo
+     * 
+     * @param t
+     * @param origem
+     * @param destino
      */
-    private void buscaCustoMinimo() {
+    public void buscaCustoMinimo(TabelaDistancias t, int origem, int destino) {
         
         int nodoOrigem, nodoInicial, nodoDestino, nodoMenorDistancia;
         Integer[] vizinhos;
         
-        // teste
-        nodoInicial = 0;
-        nodoDestino = 3;
+        tabelaDistancias = t;
+        nodoInicial = origem;
+        nodoDestino = destino;
+        
+        inicializaNodos();
+        inicializaCaminho();
+        inicializaListaPrioridades();
         
         nodoOrigem = nodoInicial;
         
@@ -88,14 +67,11 @@ public class Dijkstra {
             
         }
         
-        for (int i = 0; i < nodo.length; i++) {
-            System.out.println(leitor.getNodos()[i] + " = " + nodo[i].getDistancia());
-        }
-        
-        System.out.println("Caminho");
         int i = nodoDestino;
         while (true) {
-            caminho.add(leitor.getNodos()[nodo[i].getPrecedente()]);
+            if (nodo[i].getPrecedente() != nodoInicial) {
+                caminho.add(tabelaDistancias.getNodos()[nodo[i].getPrecedente()]);
+            }
             i = nodo[i].getPrecedente();
             if (nodo[i].getPrecedente() == nodoInicial) {
                 break;
@@ -103,13 +79,81 @@ public class Dijkstra {
         }
         
         ArrayList<String> invertido = new ArrayList<>();
-        invertido.add(leitor.getNodos()[nodoInicial]);
+        invertido.add(tabelaDistancias.getNodos()[nodoInicial]);
         for (int j = caminho.size() - 1; j >= 0; j--) {
             invertido.add(caminho.get(j));
         }
-        invertido.add(leitor.getNodos()[nodoDestino]);
+        invertido.add(tabelaDistancias.getNodos()[nodoDestino]);
         caminho = invertido;
-        System.out.println(caminho);
+    }
+    
+    /**
+     * Retorna o resultado do algoritmo
+     * 
+     * @return Resultado do algoritmo
+     */
+    public String getResultado() {
+        StringBuilder c = new StringBuilder();
+        StringBuilder tracos = new StringBuilder();
+        
+        c.append("*** Tabela de menores distâncias ***\n");
+        tracos.append("+");
+        for (int i = 0; i < tabelaDistancias.getTamanhoMaiorNodo(); i++) {
+            tracos.append("-");
+        }
+        tracos.append("+");
+        for (int i = 0; i < getTamanhoMaiorDistancia(); i++) {
+            tracos.append("-");
+        }
+        tracos.append("+\n");
+        c.append(tracos);
+        for (int i = 0; i < nodo.length; i++) {
+            c.append("|").append(tabelaDistancias.getNodos()[i]);
+            for (int j = tabelaDistancias.getNodos()[i].length() + 1; j <= tabelaDistancias.getTamanhoMaiorNodo(); j++) {
+                c.append(" ");
+            }
+            c.append("|");
+            for (int j = String.valueOf(nodo[i].getDistancia()).length() + 1; j <= getTamanhoMaiorDistancia(); j++) {
+                c.append(" ");
+            }
+            c.append(nodo[i].getDistancia()).append("|\n");
+        }
+        c.append(tracos);
+        
+        c.append("\n*** Caminho percorrido ***\n");
+        for (int i = 0; i < caminho.size(); i++) {
+            c.append(caminho.get(i));
+            if (i != caminho.size() - 1) {
+                c.append(" -> ");
+            }
+        }
+        return c.toString();
+    }
+    
+    /**
+     * Inicializa nodos do grafo
+     */
+    private void inicializaNodos() {
+        nodo = new Nodo[tabelaDistancias.getTabelaDistancias().length];
+    }
+    
+    /**
+     * Inicializa caminho da origem para o destino
+     */
+    private void inicializaCaminho() {
+        caminho = new ArrayList<>();
+    }
+    
+    /**
+     * Inicializa a lista de prioridades da busca
+     */
+    private void inicializaListaPrioridades() {
+        listaPrioridades = new ArrayList<>();
+        
+        for (int i = 0; i < tabelaDistancias.getTabelaDistancias().length; i++) {
+            listaPrioridades.add(i);
+        }
+        
     }
     
     /**
@@ -122,8 +166,8 @@ public class Dijkstra {
         
         ArrayList<Integer> vizinhos = new ArrayList<>();
         
-        for (int i = 0; i < tabelaDistancias[nodoReferencia].length; i++) {
-            if (tabelaDistancias[nodoReferencia][i] != 0) {
+        for (int i = 0; i < tabelaDistancias.getTabelaDistancias()[nodoReferencia].length; i++) {
+            if (tabelaDistancias.getTabelaDistancias()[nodoReferencia][i] != 0) {
                 vizinhos.add(i);
             }
         }
@@ -139,7 +183,7 @@ public class Dijkstra {
      * @return Peso do caminho
      */
     private int calculaPeso(int nodoReferencia, int nodoVizinho) {
-        return nodo[nodoReferencia].getDistancia() + tabelaDistancias[nodoReferencia][nodoVizinho];
+        return nodo[nodoReferencia].getDistancia() + tabelaDistancias.getTabelaDistancias()[nodoReferencia][nodoVizinho];
     }
     
     /**
@@ -162,6 +206,22 @@ public class Dijkstra {
         }
         
         return nodoMenorDistancia;
+    }
+    
+    /**
+     * Retorna o tamanho da maior distância
+     * 
+     * @return Tamanho da maior distância
+     */
+    private int getTamanhoMaiorDistancia() {
+        int t = 0, j;
+        for (Nodo nodo1 : nodo) {
+            j = String.valueOf(nodo1.getDistancia()).length();
+            if (j > t) {
+                t = j;
+            }
+        }
+        return t;
     }
 
 }
