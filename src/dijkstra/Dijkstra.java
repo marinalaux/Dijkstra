@@ -69,13 +69,11 @@ public class Dijkstra {
         
         int i = nodoDestino;
         while (true) {
-            if (nodo[i].getPrecedente() != nodoInicial) {
-                caminho.add(tabelaDistancias.getNodos()[nodo[i].getPrecedente()]);
-            }
-            i = nodo[i].getPrecedente();
             if (nodo[i].getPrecedente() == nodoInicial) {
                 break;
             }
+            caminho.add(tabelaDistancias.getNodos()[nodo[i].getPrecedente()]);
+            i = nodo[i].getPrecedente();
         }
         
         ArrayList<String> invertido = new ArrayList<>();
